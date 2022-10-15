@@ -1,3 +1,4 @@
+from pkgutil import get_importer
 import pygame
 import math
 import entities
@@ -54,9 +55,22 @@ while True:
 
             GameState_running = 1
     #####################  GAME OVER ######################
-    if GameState_running == 3: ###################   SPIELER : ANONYM   HIGHSCORE 35503   ZEIT: 
-        textsurface = _settings.my_font.render(("Retry : F4 or Return\n" + _highscore.highscorestring()), False, (255, 0, 0))
+    if GameState_running == 3:
+        #################  TYPE NAME ###########################
+        #_settings.PlayerName = 
+        _settings.screen.fill((0, 0, 0))
+        textsurface = _settings.big_font.render(("Please try again : Press F4 or Return"), False, (255, 0, 0))
         _settings.screen.blit(textsurface, (10, 10))
+        ################# Leaderboard image ###################
+        img = pygame.image.load("splash.png")
+        _settings.screen.fill((255, 255, 255))
+        _settings.screen.blit(img, (10, 10))
+        #################  Highscore on Screen #######################
+        scorelist =_highscore.highscorestring()
+        for x in range(len(scorelist)):
+            textsurface = _settings.small_font.render(scorelist[x], False, (255, 255, 255))
+            _settings.screen.blit(textsurface, (10, 250 +(40*(x+1))))
+        
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_RETURN or event.key == K_F4:
@@ -141,7 +155,7 @@ while True:
         # god mode 1 sec /// slowmotion
 
         ############ UI UPDATE ####################
-        textsurface = _settings.my_font.render(" HIGHSCORE: " +
+        textsurface = _settings.small_font.render(" HIGHSCORE: " +
                                      str(math.floor(counter/1000)), False, (255, 255, 255))
         _settings.screen.blit(textsurface, (0, 0))
         pygame.display.update()
