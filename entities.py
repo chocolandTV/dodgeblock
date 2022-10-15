@@ -16,6 +16,7 @@ class Enemy():
         self.mergCounter=0
         self.Move = behaviour
         self.priority = priority
+        self.wayPoint = 0
         self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
         if EnemyPos[0] == 0 and EnemyPos[1] == 0:
             self.NewPosition()
@@ -119,9 +120,14 @@ class Enemy():
         if self.target == self.EnemyPos:
             # get new Corner pos
             rnd = random.randint(0,7)    #which border and which way
-            rnd_offset= random.randint(0,50) # offset for more dynamic movement
-            if rnd == 0:# ##### 3 border 1050,1400      750,1000 
-                self.target = pygame.Vector2((random.randint(self.player.settings.width/4*3,self.player.settings.width),random.randint(self.player.settings.height/4*3, self.player.settings.height)))
+            rnd_offset= random.randint(0,20) # offset for more dynamic movement
+            if rnd == 0:# ##### 1 Border 0-20,1000 
+                if self.wayPoint == 0: 
+                    self.target = pygame.Vector2((random.randint(0,rnd_offset),random.randint(self.player.settings.height-rnd_offset, self.player.settings.height)))
+                    self.wayPoint = 1
+                else:
+                    self.target = pygame.Vector2(self.target.x, 0)  
+                    self.wayPoint = 0  
             if rnd == 1:# ###  2 border  0,350          750,1000
                 self.target = pygame.Vector2((random.randint(0,self.player.settings.width/4),random.randint(self.player.settings.height/4*3, self.player.settings.height)))
             if rnd == 2:# ###  1 border 1050,1400      0,250
