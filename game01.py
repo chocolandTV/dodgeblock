@@ -55,7 +55,7 @@ while True:
             GameState_running = 1
     #####################  GAME OVER ######################
     if GameState_running == 3: ###################   SPIELER : ANONYM   HIGHSCORE 35503   ZEIT: 
-        textsurface = _settings.my_font.render(("Retry : F4 or Return\n" + _highscore.highscorestring), False, (255, 0, 0))
+        textsurface = _settings.my_font.render(("Retry : F4 or Return\n" + _highscore.highscorestring()), False, (255, 0, 0))
         _settings.screen.blit(textsurface, (10, 10))
         for event in pygame.event.get():
             if event.type == KEYDOWN:

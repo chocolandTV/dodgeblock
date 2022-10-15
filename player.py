@@ -1,4 +1,4 @@
-from turtle import pos
+
 import pygame
 import settings
 from pygame.locals import (

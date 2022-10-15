@@ -1,4 +1,3 @@
-from unicodedata import name
 import urllib.request
 import time
 import requests
@@ -19,7 +18,7 @@ class HighscoreManager():
         response = requests.get(self.weburl + self.publicCode + "/json")
         response = response.json()
         for x in response["dreamlo"]["leaderboard"]["entry"]:
-            self.database_highscore.append(dreamloData(x["name"],x["score"],x["seconds"],x["text"],x["date"]))
+            self.database_highscore.append((x["name"],x["score"],x["seconds"],x["text"],x["date"]))
         print(self.database_highscore)
 
     def save(self,_username,_score,_version,_time):
@@ -29,30 +28,22 @@ class HighscoreManager():
         print (response)
         # update db
         for x in self.database_highscore:
-            if x.username == _username:
-                if int(x.score) < _score:
-                    x.score = _score
-                    x.time = _time
-                    x.version = _version
-                    # Returns a datetime object containing the local date and time
-                    dateTimeObj = datetime.now()
-                    # get the time object from datetime object
-                    timeObj = dateTimeObj.time()
-                    x.date = ('%d-%d-%d %d:%d:%d' % (
-timeObj.tm_mday, timeObj.tm_mon, timeObj.tm_year, timeObj.tm_hour, timeObj.tm_min, timeObj.tm_sec))
+            if x[0] == _username:
+                if int(x[1]) < _score:
+                    x[1] = _score
+                    x[2] = _time
+                    x[3] = _version
 
     def display(self):
         pass
     def highscorestring(self):
         string = ""
-        for index in self.database_highscore:
-            string += ('Playername: % \t Score: % \t totaltime: % \t version: % \t date: % \n' (self.database_highscore[index]["name"], self.database_highscore[index]["score"], self.database_highscore[index]["version"], self.database_highscore[index]["time"], self.database_highscore[index]["date"]))
+        for index in range(0,len(self.database_highscore)):
+            print (self.database_highscore[index][0])
+            print (self.database_highscore[index][1])
+            print (self.database_highscore[index][2])
+            print (self.database_highscore[index][3])
+            print (self.database_highscore[index][4])
+            string = string + ('Playername: % \t Score: % \t totaltime: % \t version: %\n',self.database_highscore[index][0], self.database_highscore[index][1], self.database_highscore[index][2], self.database_highscore[index][3])
+            print (string)
         return string
-        
-class dreamloData():
-    def __init__(self,_username,_score,_version,_time, _date):
-        self.username = _username
-        self.score = _score
-        self.version= _version
-        self.time = _time
-        self.date = _date
