@@ -1,5 +1,3 @@
-
-from operator import truediv
 import pygame
 import math
 import entities
@@ -7,6 +5,7 @@ import player
 import settings
 import random
 import sys
+import highscore as h
 
 from pygame.locals import (
     K_UP,
@@ -19,29 +18,25 @@ from pygame.locals import (
     K_F4,
     QUIT
 )
-
-# creating enemylist
-enemylist = []
-
-# Clock
-clock = pygame.time.Clock()
-
-# Settings init
 pygame.init()
-pygame.font.init()
-my_font = pygame.font.SysFont('Comic Sans MS', 30)
 
 _settings = settings.Settings()
+# creating enemylist
+enemylist = []
+############### Gamerunning state ###############
+GameState_running = 0
+############### running time ####################
+currenttime = 0
+totaltime = 0
+# Clock
+clock = pygame.time.Clock()
+# Highscore
+_highscore = h.HighscoreManager()
+
+# GameOver State
 game_over = False
 
 
-def message(msg, color):
-    mesg = my_font.render(msg, True, color)
-    _settings.screen.blit(mesg, (_settings.width/2, _settings.height/2))
-
-############### GAME LOOP ###############
-GameState_running = 0
-currenttime = 0
 # 0 splash screen /// 1 Spawn  /// 2 Game   //// 3 Gameover
 while True:
     #####################  INTRO ######################
@@ -53,13 +48,15 @@ while True:
         clock.tick()
         currenttime += clock.get_rawtime()
         pygame.display.update()
-        print (currenttime)
+        #print (currenttime)
         if currenttime >= 2000:
             _settings.screen.fill((0, 0, 0))
 
             GameState_running = 1
     #####################  GAME OVER ######################
-    if GameState_running == 3:
+    if GameState_running == 3: ###################   SPIELER : ANONYM   HIGHSCORE 35503   ZEIT: 
+        textsurface = _settings.my_font.render(("Retry : F4 or Return\n" + _highscore.highscorestring), False, (255, 0, 0))
+        _settings.screen.blit(textsurface, (10, 10))
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_RETURN or event.key == K_F4:
@@ -70,12 +67,7 @@ while True:
 
             if event.type == QUIT:
                 pygame.quit()
-
-        message("Retry : F4 or Return", (255, 0, 0))
         pygame.display.update()
-
-        # Show Score BIG
-        # Show Highscore
     ################ START GAME ###############
     if GameState_running == 1:
     
@@ -112,6 +104,7 @@ while True:
         ##################### TIME UPDATE #########################
         clock.tick()
         currenttime += clock.get_rawtime()
+        totaltime += clock.get_rawtime()
         ##################### Spawn Enemy after 1 Minute ##########
         # print(currenttime)
         if currenttime >= 5000:
@@ -125,6 +118,8 @@ while True:
                 obj.tick(clock.get_time())
                 GameState_running = 3
                 print(" Game Over")
+                _highscore.load()
+                _highscore.save(_settings.PlayerName, _highscore.PlayerHighscore, _settings.Gameversion, totaltime)
             else:
                 obj.tick(clock.get_time())
         _player.tick(clock.get_time())
@@ -139,8 +134,14 @@ while True:
         ############ SCORE UPDATE #################
         counter += len(enemylist)
         # highscore Printen
+        # highscore uploaden
+        # highscore downloaden liste
+        # highscore show on screen and wait for inputs
+        ################ SPECIAL ABILLITY #############
+        # god mode 1 sec /// slowmotion
+
         ############ UI UPDATE ####################
-        textsurface = my_font.render(" HIGHSCORE: " +
+        textsurface = _settings.my_font.render(" HIGHSCORE: " +
                                      str(math.floor(counter/1000)), False, (255, 255, 255))
         _settings.screen.blit(textsurface, (0, 0))
         pygame.display.update()
