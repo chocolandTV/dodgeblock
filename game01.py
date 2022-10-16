@@ -62,7 +62,7 @@ while True:
         textsurface = _settings.big_font.render(("Please try again : Press F4 or Return"), False, (255, 0, 0))
         _settings.screen.blit(textsurface, (10, 10))
         ################# Leaderboard image ###################
-        img = pygame.image.load("splash.png")
+        img = pygame.image.load("leaderboard.png")
         _settings.screen.fill((255, 255, 255))
         _settings.screen.blit(img, (10, 10))
         #################  Highscore on Screen #######################
