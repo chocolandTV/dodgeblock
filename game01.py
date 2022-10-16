@@ -33,7 +33,7 @@ totaltime = 0
 clock = pygame.time.Clock()
 # Highscore
 _highscore = h.HighscoreManager()
-
+_highscore.PlayerHighscore = 0
 # GameOver State
 game_over = False
 
@@ -44,7 +44,7 @@ while True:
     if GameState_running == 0:
         img = pygame.image.load("splash.png")
         _settings.screen.fill((255, 255, 255))
-        _settings.screen.blit(img, (10, 10))
+        _settings.screen.blit(img, (153, 10))
         
         clock.tick()
         currenttime += clock.get_rawtime()
@@ -56,20 +56,28 @@ while True:
             GameState_running = 1
     #####################  GAME OVER ######################
     if GameState_running == 3:
+        onetime = True
         #################  TYPE NAME ###########################
         #_settings.PlayerName = 
         _settings.screen.fill((0, 0, 0))
         textsurface = _settings.big_font.render(("Please try again : Press F4 or Return"), False, (255, 0, 0))
         _settings.screen.blit(textsurface, (10, 10))
         ################# Leaderboard image ###################
-        img = pygame.image.load("leaderboard.png")
-        _settings.screen.fill((255, 255, 255))
-        _settings.screen.blit(img, (10, 10))
+        imgLeaderboard = pygame.image.load("leaderboard.png")
+        _settings.screen.blit(imgLeaderboard, (0, 0))
         #################  Highscore on Screen #######################
         scorelist =_highscore.highscorestring()
-        for x in range(len(scorelist)):
-            textsurface = _settings.small_font.render(scorelist[x], False, (255, 255, 255))
-            _settings.screen.blit(textsurface, (10, 250 +(40*(x+1))))
+        for y in range(len(scorelist)):
+            imgEntry = pygame.image.load("entry.png")
+            _settings.screen.blit(imgEntry, (0,_settings.highscoreHeight-7+(40*(y+1))))
+            tempstring = scorelist[y].split(", ")
+            print (tempstring)
+            for x in range(len(tempstring)):
+                textsurface = _settings.small_font.render(tempstring[x], False, (0, 0, 0))
+                if x == 4:
+                    _settings.screen.blit(textsurface, ((250*(x+1)-160), _settings.highscoreHeight +(40*(y+1))))
+                else:
+                    _settings.screen.blit(textsurface, ((250*(x+1)-150), _settings.highscoreHeight +(40*(y+1))))
         
         for event in pygame.event.get():
             if event.type == KEYDOWN:
@@ -81,18 +89,18 @@ while True:
 
             if event.type == QUIT:
                 pygame.quit()
-        pygame.display.update()
+        if onetime == True:
+            pygame.display.update()
+            onetime =False
+        
     ################ START GAME ###############
     if GameState_running == 1:
-    
-        # Speed per Second
-        counter = 0
-        # PixelperSecond
+        _highscore.PlayerHighscore = 0
         currenttime = 0
         lasttime = 0
         ################# Create Player ################
         _player = player.Player((500, 350), (0, 0, 250),
-                                32, 2, _settings, enemylist, 250)
+                                32, 2, _settings, enemylist, 250,_highscore)
         ################ Create Enemys -( POSITION X,Y - COLOR - SIZE, DELAY , PLAYER, BEHAVIOUR, PRIORITY) ##################
         enemylist.clear()
         enemylist.append(entities.Enemy(
@@ -114,7 +122,10 @@ while True:
         GameState_running = 2
     ############################ Game Running ############################## 
     if GameState_running == 2:
-        _settings.screen.fill((0, 0, 0))
+        if _player.Ability == True:
+            _settings.screen.fill((0, 0, 100))
+        else:
+            _settings.screen.fill((0, 0, 0))
         ##################### TIME UPDATE #########################
         clock.tick()
         currenttime += clock.get_rawtime()
@@ -126,16 +137,20 @@ while True:
             enemylist.append(entities.Enemy((0, 0), (random.randint(0, 255), random.randint(
                 0, 255), 0), random.randint(25, 100), random.randint(15, 30), _player, entities.Enemy.Move_toTarget, 0))
             currenttime = 0
+            random.seed(6)
+            print("Enemy - Spawn seed ",random.random())
         ##################### CHECK COLLISION #####################
         for obj in enemylist:
             if (pygame.Rect.colliderect(pygame.Rect(_player.playerPos.x, _player.playerPos.y, _player.size, _player.size), pygame.Rect(obj.EnemyPos.x, obj.EnemyPos.y, obj.size, obj.size))):
-                obj.tick(clock.get_time())
+                obj.tick(clock.get_time(),_player.Ability)
                 GameState_running = 3
                 print(" Game Over")
                 _highscore.load()
-                _highscore.save(_settings.PlayerName, _highscore.PlayerHighscore, _settings.Gameversion, totaltime)
+                _highscore.save(_settings.PlayerName, _highscore.PlayerHighscore/1000, _settings.Gameversion, totaltime)
             else:
-                obj.tick(clock.get_time())
+############################# ABILITY CHECK #############################
+                
+                obj.tick(clock.get_time(),_player.Ability)
         _player.tick(clock.get_time())
 
         for event in pygame.event.get():
@@ -145,17 +160,9 @@ while True:
                     GameState_running = 3
             if event.type == QUIT:
                 GameState_running = 3
-        ############ SCORE UPDATE #################
-        counter += len(enemylist)
-        # highscore Printen
-        # highscore uploaden
-        # highscore downloaden liste
-        # highscore show on screen and wait for inputs
-        ################ SPECIAL ABILLITY #############
-        # god mode 1 sec /// slowmotion
-
+        
         ############ UI UPDATE ####################
         textsurface = _settings.small_font.render(" HIGHSCORE: " +
-                                     str(math.floor(counter/1000)), False, (255, 255, 255))
+                                     str(math.floor(_highscore.PlayerHighscore/1000)), False, (255, 255, 255))
         _settings.screen.blit(textsurface, (0, 0))
         pygame.display.update()
