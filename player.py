@@ -1,7 +1,7 @@
 
 import pygame
 import settings
-
+import math
 
 from pygame.locals import (
     K_UP,
@@ -64,6 +64,7 @@ class Player():
         if keys[K_SPACE]:
             if self.Ability == False:
                 self.Ability = True
+                self.highscore.PlayerHighscore =math.floor(self.highscore.PlayerHighscore *self.Ability_costs)
 ####################  tick every 0.0001 s #####################
     def tick(self, _clocktime):
         self.playerMoveCounter += _clocktime
@@ -73,8 +74,7 @@ class Player():
             ###################### Update Highscore ##################
             if self.Ability == False:
                 self.highscore.PlayerHighscore += len(self.EnemyList)
-            else:
-                self.highscore.PlayerHighscore *=self.Ability_costs
+ 
             ###################### ABILITY CHECK #####################
             if self.Ability == True:
                 self.Ability_counter +=1
