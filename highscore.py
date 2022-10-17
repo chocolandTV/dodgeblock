@@ -30,17 +30,16 @@ class HighscoreManager():
         # read DB if any entry with the same name, delete if new Highscore is better
         # save new Highscore
         response = requests.get(self.weburl + self.privateCode + "/add/" +
-                                _username + "/" + str(_score) + "/" + str(_time) + "/" + _version)
+                                _username + "/" + str(_score) + "/" + str(int(_time/1000)) + "/" + _version)
         print("Database saved.")
         #  update db
         for index in range(0, len(self.database_highscore)):
-            if index[0] == _username and index["score"] <= _score:
-                self.database_highscore.index[1] = _score
-                self.database_highscore.index[2] = _time
-                self.database_highscore.index[3] =_version
+            if self.database_highscore[index][0] == _username and int(self.database_highscore[index][1]) <= _score:
+                
                 now = datetime.now()
                 dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-                self.database_highscore.index[4] = dt_string
+                
+                self.database_highscore[index]= (_username,_score,_time, _version,dt_string)
         self.load()
 
     def highscorestring(self):
