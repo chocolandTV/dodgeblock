@@ -90,6 +90,7 @@ while True:
         imgLeaderboard = pygame.image.load("leaderboard.png")
         _settings.screen.blit(imgLeaderboard, (0, 0))
         #################  Highscore on Screen #######################
+        
         scorelist =_highscore.highscorestring()
         for y in range(len(scorelist)):
             imgEntry = pygame.image.load("entry.png")
@@ -123,7 +124,7 @@ while True:
         currenttime = 0
         lasttime = 0
         ################# Create Player ################
-        _player = player.Player((500, 350), (0, 0, 250),
+        _player = player.Player((100, 100), (0, 0, 250),
                                 32, 2, _settings, enemylist, 250,_highscore)
         ################ Create Enemys -( POSITION X,Y - COLOR - SIZE, DELAY , PLAYER, BEHAVIOUR, PRIORITY) ##################
         enemylist.clear()
@@ -169,10 +170,12 @@ while True:
                 obj.tick(clock.get_time(),_player.Ability)
                 gamestate = 3
                 print(" Game Over")
-                _highscore.load()
+                
                 ####### Save only under 5 pause ######
                 if _highscore.pausedUsed<=5:
-                    _highscore.save(_settings.PlayerName, _highscore.PlayerHighscore/1000, _settings.Gameversion, totaltime)
+                    print ("highscore saved")
+                    _highscore.save(_settings.PlayerName,  math.floor(_highscore.PlayerHighscore/1000), _settings.Gameversion, totaltime)
+                    
                 else:
                     textsurface = _settings.tall_font.render(" Highscore will not saved because too many Pausedtimes", False, (255, 255, 255))
                     _settings.screen.blit(textsurface, (_settings.width/2-250, _settings.height/2-40))

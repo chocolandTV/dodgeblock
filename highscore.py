@@ -23,7 +23,7 @@ class HighscoreManager():
         for x in response["dreamlo"]["leaderboard"]["entry"]:
             self.database_highscore.append(
                 (x["name"], x["score"], x["seconds"], x["text"], x["date"]))
-        #print(self.database_highscore)
+        
         print ("Database Loaded.")
 
     def save(self, _username, _score, _version, _time):
@@ -33,6 +33,14 @@ class HighscoreManager():
                                 _username + "/" + str(_score) + "/" + str(_time) + "/" + _version)
         print("Database saved.")
         #  update db
+        for index in range(0, len(self.database_highscore)):
+            if index[0] == _username and index["score"] <= _score:
+                self.database_highscore.index[1] = _score
+                self.database_highscore.index[2] = _time
+                self.database_highscore.index[3] =_version
+                now = datetime.now()
+                dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                self.database_highscore.index[4] = dt_string
         self.load()
 
     def highscorestring(self):
