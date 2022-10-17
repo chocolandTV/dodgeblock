@@ -55,9 +55,9 @@ while True:
             _settings.screen.blit(img, (0, 0))
             
             ################# Display Input Box  ####################
-            textsurface = _settings.small_font.render(("Playername for Highscore, type in and press Return for commit"), False, (255, 0, 0))
-            _settings.screen.blit(textsurface, (250, 300))
-            input_box1 = inputbox.InputBox(250,400, 200, 32)
+            textsurface = _settings.small_font.render(("Playername:     (type in and press Return)"), False, (255, 0, 0))
+            _settings.screen.blit(textsurface, (500, 250))
+            input_box1 = inputbox.InputBox(520,280, 300, 40)
             done = False
             pygame.display.update()
             ################### input loop ################
@@ -69,10 +69,10 @@ while True:
                     if event.type == KEYDOWN:
                         if event.key == K_RETURN or event.key == K_F4:
                             done = True
-                input_box1.update()
+                
                 input_box1.draw(_settings.screen)
-
-                #pygame.display.flip()
+                
+                pygame.display.flip()
                 ############ output and define var #################
             if input_box1.text != "":
                 _settings.PlayerName = input_box1.text
