@@ -31,10 +31,11 @@ class Player():
         self.EnemyList = enemylist
         self.SpawnRadius = spawnRadius
         self.Ability = False
-        self.Ability_activationTime = 100
-        self.Ability_counter=0
-        self.Ability_costs = 0.2
+        self.Ability_activationTime = 500
+        self.Ability_counter = 0
+        self.Ability_costs = 0.75  # 25%
         self.highscore = highscore
+        self.abilitytext = ""
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -62,30 +63,45 @@ class Player():
                 if not keys[K_UP]:
                     self.counter += 1
         if keys[K_SPACE]:
-            if self.Ability == False:
+            if self.Ability == False and self.Ability_counter == -1:
                 self.Ability = True
-                self.highscore.PlayerHighscore =math.floor(self.highscore.PlayerHighscore *self.Ability_costs)
+                self.Ability_counter = 0
+                self.highscore.PlayerHighscore = math.floor(
+                    self.highscore.PlayerHighscore * self.Ability_costs)
 ####################  tick every 0.0001 s #####################
+
     def tick(self, _clocktime):
         self.playerMoveCounter += _clocktime
         self.player_draw()
-        
+
         if self.playerMoveCounter >= self.delay:
             ###################### Update Highscore ##################
             if self.Ability == False:
                 self.highscore.PlayerHighscore += len(self.EnemyList)
- 
+
             ###################### ABILITY CHECK #####################
             if self.Ability == True:
-                self.Ability_counter +=1
+                self.Ability_counter += 1
                 if self.Ability_counter >= self.Ability_activationTime:
-                    self.Ability_counter = 0
-                    self.Ability= False
+                    self.Ability = False
+            elif self.Ability_counter <= 5000 and self.Ability_counter > 0:  #### 5000 cooldown
+                self.Ability_counter += 1
+            else:
+                self.Ability_counter = -1
+
         ######################  MOVE and counter set 0 ############
             self.playerMoveCounter = 0
             self.move()
-            
+
 ################  DRAW PLAYER ####################
     def player_draw(self):
         pygame.draw.rect(self.screen, self.color, (self.playerPos.x,
-                                                       self.playerPos.y, self.size, self.size))
+                                                   self.playerPos.y, self.size, self.size))
+    def ability_string(self):
+        if self.Ability:
+            self.abilitytext = " FREEZE ON"
+        elif not self.Ability and self.Ability_counter >=1:
+            self.abilitytext = " FREEZE OFF AND COOLDOWN"
+        else:
+            self.abilitytext = " Freeze Ready-  press SPACE for 20% Highscore"
+        return self.abilitytext

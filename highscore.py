@@ -14,6 +14,7 @@ class HighscoreManager():
         self.weburl = "http://dreamlo.com/lb/"
         self.database_highscore = []
         self.PlayerHighscore = 0
+        self.pausedUsed = 0
 
     def load(self):
         self.database_highscore.clear()
@@ -31,13 +32,8 @@ class HighscoreManager():
         response = requests.get(self.weburl + self.privateCode + "/add/" +
                                 _username + "/" + str(_score) + "/" + str(_time) + "/" + _version)
         print("Database saved.")
-        # update db
-        for x in self.database_highscore:
-            if x[0] == _username:
-                if int(x[1]) < _score:
-                    x[1] = _score
-                    x[2] = _time
-                    x[3] = _version
+        #  update db
+        self.load()
 
     def highscorestring(self):
         result=[]

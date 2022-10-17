@@ -10,6 +10,8 @@ class Settings():
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.small_font = pygame.font.SysFont('Arial Black', 18)
         self.big_font = pygame.font.SysFont('Arial Black', 50)
-        self.Gameversion = "0.10"
+        self.tall_font = pygame.font.SysFont('Arial Black', 70)
+        self.Gameversion = "0.20"
         self.PlayerName = "anonymous"
         self.highscoreHeight= 160
+        

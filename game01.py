@@ -1,12 +1,11 @@
-from pkgutil import get_importer
 import pygame
 import math
 import entities
 import player
 import settings
 import random
-import sys
 import highscore as h
+import inputbox
 
 from pygame.locals import (
     K_UP,
@@ -24,8 +23,8 @@ pygame.init()
 _settings = settings.Settings()
 # creating enemylist
 enemylist = []
-############### Gamerunning state ###############
-GameState_running = 0
+############### Gamestate ###############
+gamestate = 0
 ############### running time ####################
 currenttime = 0
 totaltime = 0
@@ -38,30 +37,55 @@ _highscore.PlayerHighscore = 0
 game_over = False
 
 
-# 0 splash screen /// 1 Spawn  /// 2 Game   //// 3 Gameover
+# 0 splash screen and Hmenu  /// 1 Spawn  /// 2 Game   //// 3 Gameover
 while True:
-    #####################  INTRO ######################
-    if GameState_running == 0:
+    #####################  INTRO AND MENU ######################
+    if gamestate == 0:
         img = pygame.image.load("splash.png")
         _settings.screen.fill((255, 255, 255))
-        _settings.screen.blit(img, (153, 10))
-        
+        _settings.screen.blit(img, (0, 0))
+        ################## Time update ###################
         clock.tick()
         currenttime += clock.get_rawtime()
         pygame.display.update()
-        #print (currenttime)
-        if currenttime >= 2000:
-            _settings.screen.fill((0, 0, 0))
+        ################# Main Menu #################
+        
+        if _settings.PlayerName == "anonymous" and currenttime >= 3000:
+            img = pygame.image.load("Hmenu.png")
+            _settings.screen.blit(img, (0, 0))
+            
+            ################# Display Input Box  ####################
+            textsurface = _settings.small_font.render(("Playername for Highscore, type in and press Return for commit"), False, (255, 0, 0))
+            _settings.screen.blit(textsurface, (250, 300))
+            input_box1 = inputbox.InputBox(250,400, 200, 32)
+            done = False
+            pygame.display.update()
+            ################### input loop ################
+            while not done:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        done = True
+                    input_box1.handle_event(event)
+                    if event.type == KEYDOWN:
+                        if event.key == K_RETURN or event.key == K_F4:
+                            done = True
+                input_box1.update()
+                input_box1.draw(_settings.screen)
 
-            GameState_running = 1
+                #pygame.display.flip()
+                ############ output and define var #################
+            if input_box1.text != "":
+                _settings.PlayerName = input_box1.text
+            gamestate = 1
+        else:
+            if currenttime >= 3000:
+                gamestate = 1
+        
     #####################  GAME OVER ######################
-    if GameState_running == 3:
-        onetime = True
-        #################  TYPE NAME ###########################
-        #_settings.PlayerName = 
-        _settings.screen.fill((0, 0, 0))
+    if gamestate == 3:
+        _settings.screen.fill((70, 70, 70))
         textsurface = _settings.big_font.render(("Please try again : Press F4 or Return"), False, (255, 0, 0))
-        _settings.screen.blit(textsurface, (10, 10))
+        _settings.screen.blit(textsurface, (25, 25))
         ################# Leaderboard image ###################
         imgLeaderboard = pygame.image.load("leaderboard.png")
         _settings.screen.blit(imgLeaderboard, (0, 0))
@@ -71,7 +95,7 @@ while True:
             imgEntry = pygame.image.load("entry.png")
             _settings.screen.blit(imgEntry, (0,_settings.highscoreHeight-7+(40*(y+1))))
             tempstring = scorelist[y].split(", ")
-            print (tempstring)
+            
             for x in range(len(tempstring)):
                 textsurface = _settings.small_font.render(tempstring[x], False, (0, 0, 0))
                 if x == 4:
@@ -82,19 +106,19 @@ while True:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_RETURN or event.key == K_F4:
-                    GameState_running = 0
+                    gamestate = 0
                     del _player
                     for obj in enemylist:
                         del obj
 
             if event.type == QUIT:
                 pygame.quit()
-        if onetime == True:
-            pygame.display.update()
-            onetime =False
+        
+        pygame.display.update()
+            
         
     ################ START GAME ###############
-    if GameState_running == 1:
+    if gamestate == 1:
         _highscore.PlayerHighscore = 0
         currenttime = 0
         lasttime = 0
@@ -104,49 +128,55 @@ while True:
         ################ Create Enemys -( POSITION X,Y - COLOR - SIZE, DELAY , PLAYER, BEHAVIOUR, PRIORITY) ##################
         enemylist.clear()
         enemylist.append(entities.Enemy(
-            (1400, 200), (255, 0, 0), 50, 10, _player, entities.Enemy.Move_Corners, 1))
+            (1400, 200), (200, 50, 0), 50, 10, _player, entities.Enemy.Move_toTarget, 1))
         enemylist.append(entities.Enemy(
             (1100, 300), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_toPlayerX, 1))
         enemylist.append(entities.Enemy(
             (800, 400), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_toPlayerY, 1))
         enemylist.append(entities.Enemy(
-            (600, 500), (255, 0, 0), 50, 5, _player, entities.Enemy.Move_Borders, 1))
+            (600, 500), (180, 0, 0), 50, 5, _player, entities.Enemy.Move_toTarget, 1))
         enemylist.append(entities.Enemy(
-            (500, 600), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_Corners, 1))
+            (500, 600), (200, 50, 0), 50, 8, _player, entities.Enemy.Move_toTarget, 1))
         enemylist.append(entities.Enemy(
-            (400, 700), (255, 0, 0), 50, 5, _player, entities.Enemy.Move_Borders, 1))
+            (400, 700), (180, 0, 0), 50, 5, _player, entities.Enemy.Move_toTarget, 1))
         enemylist.append(entities.Enemy(
             (300, 800), (255, 0, 0), 50, 10, _player, entities.Enemy.Move_toPlayerX, 1))
         enemylist.append(entities.Enemy(
             (200, 900), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_toPlayerY, 1))
-        GameState_running = 2
+        gamestate = 2
     ############################ Game Running ############################## 
-    if GameState_running == 2:
+    if gamestate == 2:
         if _player.Ability == True:
             _settings.screen.fill((0, 0, 100))
         else:
-            _settings.screen.fill((0, 0, 0))
+            _settings.screen.fill((70, 70, 70))
         ##################### TIME UPDATE #########################
         clock.tick()
         currenttime += clock.get_rawtime()
         totaltime += clock.get_rawtime()
-        ##################### Spawn Enemy after 1 Minute ##########
+        ##################### Spawn Enemy after  ##########
         # print(currenttime)
         if currenttime >= 5000:
             # print(currenttime)
             enemylist.append(entities.Enemy((0, 0), (random.randint(0, 255), random.randint(
-                0, 255), 0), random.randint(25, 100), random.randint(15, 30), _player, entities.Enemy.Move_toTarget, 0))
+                0, 255), 0), random.randint(25, 100), random.randint(5, 20), _player, entities.Enemy.Move_toTarget, 0))
             currenttime = 0
-            random.seed(6)
-            print("Enemy - Spawn seed ",random.random())
+            random.seed(23)
+            print("Enemy - Spawned by seed ",random.random())
         ##################### CHECK COLLISION #####################
         for obj in enemylist:
             if (pygame.Rect.colliderect(pygame.Rect(_player.playerPos.x, _player.playerPos.y, _player.size, _player.size), pygame.Rect(obj.EnemyPos.x, obj.EnemyPos.y, obj.size, obj.size))):
                 obj.tick(clock.get_time(),_player.Ability)
-                GameState_running = 3
+                gamestate = 3
                 print(" Game Over")
                 _highscore.load()
-                _highscore.save(_settings.PlayerName, _highscore.PlayerHighscore/1000, _settings.Gameversion, totaltime)
+                ####### Save only under 5 pause ######
+                if _highscore.pausedUsed<=5:
+                    _highscore.save(_settings.PlayerName, _highscore.PlayerHighscore/1000, _settings.Gameversion, totaltime)
+                else:
+                    textsurface = _settings.tall_font.render(" Highscore will not saved because too many Pausedtimes", False, (255, 255, 255))
+                    _settings.screen.blit(textsurface, (_settings.width/2-250, _settings.height/2-40))
+        
             else:
 ############################# ABILITY CHECK #############################
                 
@@ -157,12 +187,27 @@ while True:
             if event.type == KEYDOWN:
 
                 if event.key == K_ESCAPE:
-                    GameState_running = 3
+                    gamestate=4
+                    _highscore.pausedUsed +=1
             if event.type == QUIT:
-                GameState_running = 3
+                gamestate = 3
         
         ############ UI UPDATE ####################
+        
+        
         textsurface = _settings.small_font.render(" HIGHSCORE: " +
-                                     str(math.floor(_highscore.PlayerHighscore/1000)), False, (255, 255, 255))
+                                     str(math.floor(_highscore.PlayerHighscore/1000)) + _player.ability_string(), False, (255, 255, 255))
         _settings.screen.blit(textsurface, (0, 0))
+        pygame.display.update()
+############################## PAUSE MENU ##########################
+    if gamestate == 4:
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+
+                if event.key == K_ESCAPE:
+                    gamestate=2
+            if event.type == QUIT:
+                gamestate = 3
+        textsurface = _settings.tall_font.render(" Paused ", False, (255, 255, 255))
+        _settings.screen.blit(textsurface, (_settings.width/2-100, _settings.height/2-40))
         pygame.display.update()

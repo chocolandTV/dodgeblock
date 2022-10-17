@@ -12,11 +12,9 @@ class Enemy():
         self.Counter = 0
         self.direction = 0
         self.NOTFINISHED = True
-        self.moveTorwardSteps = 1
         self.mergCounter=0
         self.Move = behaviour
         self.priority = priority
-        self.wayPoint = 0
         self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
         if EnemyPos[0] == 0 and EnemyPos[1] == 0:
             self.NewPosition()
@@ -27,48 +25,40 @@ class Enemy():
         while self.NOTFINISHED:
                 self.NOTFINISHED = False
                 self.EnemyPos = pygame.Vector2(random.randint(0, self.player.settings.width), random.randint(0, self.player.settings.height))
-                #print("get random Position")
+                
                 for _miniEnemy in self.player.EnemyList:
                     if self != _miniEnemy:
-                        if (pygame.Rect.colliderect(pygame.Rect(self.EnemyPos.x, self.EnemyPos.y, self.size, self.size), pygame.Rect(_miniEnemy.EnemyPos.x, _miniEnemy.EnemyPos.y, _miniEnemy.size, _miniEnemy.size))):
+                        if (pygame.Rect.colliderect(pygame.Rect(self.EnemyPos.x, self.EnemyPos.y, self.size, self.size), pygame.Rect(_miniEnemy.EnemyPos.x-(_miniEnemy.size/2), _miniEnemy.EnemyPos.y-(_miniEnemy.size/2), _miniEnemy.size, _miniEnemy.size))):
                             self.NOTFINISHED = True
-                        elif(pygame.Rect.colliderect(pygame.Rect(self.EnemyPos.x, self.EnemyPos.y, self.size, self.size), pygame.Rect(self.player.playerPos.x, self.player.playerPos.y, self.player.SpawnRadius, self.player.SpawnRadius))):
+                        elif(pygame.Rect.colliderect(pygame.Rect(self.EnemyPos.x, self.EnemyPos.y, self.size, self.size), pygame.Rect(self.player.playerPos.x- (self.player.SpawnRadius/2), self.player.playerPos.y- (self.player.SpawnRadius/2), self.player.SpawnRadius, self.player.SpawnRadius))):
                             self.NOTFINISHED = True
                 if self.NOTFINISHED:
                     print("not finished false")
                     
-######################  GIVE NEW RANDOM TARGET WITH RANGE ###########################
-    def NewTarget(self, xrange,yrange):
-        random.seed(20)
-        print("Enemy - new Target Behaviour seed ",random.random())
-        self.target = pygame.Vector2(random.randint(0+ xrange, self.player.settings.width- xrange),random.randint(0+yrange, self.player.settings.height-yrange))
 
 ###################### COLLISION WITH DIRECTION AND RUN TO THE BORDER ###############
-    def CollisionEffect(self, direction, softcollision):
+    def CollisionEffect(self, direction):
+        _rnd =random.randint(5,30)
         if direction == 1:
-            self.EnemyPos.x -=8
-            if softcollision == 0:
-                print ("soft collision")
-                self.target=pygame.Vector2(random.randint(0, self.player.settings.width), random.randint(0, self.player.settings.height))
+            self.EnemyPos.x -=_rnd
+            self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
 
+            
         if direction == 2:
-            self.EnemyPos.y -=8
-            if softcollision == 0:
-                print ("soft collision")
-                self.target=pygame.Vector2(random.randint(0, self.player.settings.width), random.randint(0, self.player.settings.height))
+            self.EnemyPos.y -=_rnd
+            self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
 
+            
         if direction == 3:
-            self.EnemyPos.x +=8
-            if softcollision == 0:
-                print ("soft collision")
-                self.target=pygame.Vector2(random.randint(0, self.player.settings.width), random.randint(0, self.player.settings.height))
+            self.EnemyPos.x +=_rnd
+            self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
 
+            
         if direction == 4:
-            self.EnemyPos.y +=8
-            if softcollision == 0:
-                print ("soft collision")
-                self.target=pygame.Vector2(random.randint(0, self.player.settings.width), random.randint(0, self.player.settings.height))
+            self.EnemyPos.y +=_rnd
+            self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
 
+            
 #########################   BEHAVIOUR  ENEMY THAT FOLLOW ON THE X AXIS ################################
     def Move_toPlayerX(self):
         self.target = self.player.playerPos
@@ -103,106 +93,15 @@ class Enemy():
             else:
                 self.EnemyPos.y +=1
         
-        
-#########################   BEHAVIOUR  ENEMY THAT MOVE IN A RANDOM CORNER ################################
-    def Move_Corners(self):
-        if self.target == self.EnemyPos:
-            random.seed(4)
-            print("Enemy - Corner Behaviour seed ",random.random())
-            # get new Corner pos
-            rnd = random.randint(0,3)    #which corner
-            if rnd == 3:# ##### 3 corner 1050,1400      750,1000 
-                self.target = pygame.Vector2((random.randint(self.player.settings.width/4*3,self.player.settings.width),random.randint(self.player.settings.height/4*3, self.player.settings.height)))
-            if rnd == 2:# ###  2 corner  0,350          750,1000
-                self.target = pygame.Vector2((random.randint(0,self.player.settings.width/4),random.randint(self.player.settings.height/4*3, self.player.settings.height)))
-            if rnd == 1:# ###  1 corner  1050,1400      0,250
-                self.target = pygame.Vector2((random.randint(self.player.settings.width/4*3,self.player.settings.width),random.randint(0, self.player.settings.height/4)))
-            if rnd == 0:#####  0 Corner  0,350          0,250
-                self.target = pygame.Vector2((random.randint(0,self.player.settings.width/4),random.randint(0, self.player.settings.height/4)))
-            print(self.target)
-        # move to Point
-        self.Move_toTarget()
-
-#########################   BEHAVIOUR  ENEMY THAT MOVE ALONG THE BORDERS ################################
-    def Move_Borders(self):
-        ### IF Target is reached
-        if self.target == self.EnemyPos:
-            random.seed(10)
-            print("Enemy - Move Behaviour seed ",random.random())
-            # get new Corner pos
-            rnd = random.randint(0,7)    #which border and which way
-            rnd_offset= random.randint(0,50) # offset for more dynamic movement
-            if rnd == 0:# LEFT##### 1 Border 0,1000-0,0 
-                if self.wayPoint == 0:
-                    self.target = pygame.Vector2((random.randint(0,rnd_offset),random.randint(self.player.settings.height-rnd_offset, self.player.settings.height)))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(self.target.x, (random.randint(0,rnd_offset)))  
-                    self.wayPoint = 0
-
-            if rnd == 1:# TOP ###  2 border  0,0-1400,0
-                if self.wayPoint == 0:
-                    self.target = pygame.Vector2((random.randint(0,rnd_offset),random.randint(0,rnd_offset)))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(random.randint(self.player.settings.width - rnd_offset,self.player.settings.width), self.target.y)  
-                    self.wayPoint = 0 
-
-            if rnd == 2:# RIGHT###  3 border 1400,0-1400,1000
-                if self.wayPoint == 0:
-                    self.target = pygame.Vector2((random.randint(self.player.settings.width - rnd_offset,1400),random.randint(0,rnd_offset)))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(self.target.x, random.randint(self.player.settings.height- rnd_offset,self.player.settings.height))  
-                    self.wayPoint = 0
-
-            if rnd == 3:# BOTTOM ####  0 border  1400,1000-0,1000
-                if self.wayPoint == 0: 
-                    self.target = pygame.Vector2(random.randint(self.player.settings.width-rnd_offset,self.player.settings.width),random.randint(self.player.settings.height-rnd_offset,self.player.settings.height))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(random.randint(0,rnd_offset), self.target.y)  
-                    self.wayPoint = 0
-
-            if rnd == 4:# LEFT##### 1 Border 0,0-0,1000 
-                if self.wayPoint == 0: 
-                    self.target = pygame.Vector2((random.randint(0,rnd_offset),random.randint(0, rnd_offset)))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(self.target.x, random.randint(self.player.settings.height-rnd_offset, self.player.settings.height))  
-                    self.wayPoint = 0
-
-            if rnd == 5:# TOP ###  2 border  1400,0-0,0 
-                if self.wayPoint == 0: 
-                    self.target = pygame.Vector2((random.randint(self.player.settings.width - rnd_offset,self.player.settings.width),random.randint(0,rnd_offset)))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(random.randint(0,rnd_offset), self.target.y)  
-                    self.wayPoint = 0
-
-            if rnd == 6:# RIGHT###  3 border  1400,1000-1400,0
-                if self.wayPoint == 0: 
-                    self.target = pygame.Vector2(random.randint(self.player.settings.width - rnd_offset,1400),random.randint(self.player.settings.height- rnd_offset,self.player.settings.height))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(self.target.x, random.randint(self.player.settings.height- rnd_offset,self.player.settings.height))  
-                    self.wayPoint = 0
-
-            if rnd == 7:# BOTTOM ####  0 border  0,1000-1400,1000
-                if self.wayPoint == 0:
-                    self.target = pygame.Vector2((random.randint(0,rnd_offset),random.randint(self.player.settings.height-rnd_offset,self.player.settings.height)))
-                    self.wayPoint = 1
-                else:
-                    self.target = pygame.Vector2(random.randint(self.player.settings.width - rnd_offset,1400), self.target.y)  
-                    self.wayPoint = 0
-        # move Routine
-        self.Move_toTarget()
 
 ###################### approximation update #######################
     def Move_toTarget(self):
         #if target is reached get new random Target
-        if self.target == self.EnemyPos and self.priority ==0:
-            self.NewTarget(0,0)
+        if self.target == self.EnemyPos:
+            random.seed(20)
+            print("Enemy - MovetoTarget Behaviour seed",random.random())
+            self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
+
         if self.target.x != self.EnemyPos.x:
             if self.target.x < self.EnemyPos.x:
                 self.EnemyPos.x -= 1
@@ -221,40 +120,22 @@ class Enemy():
             if self != _miniEnemy:
                 
                 if (pygame.Rect.colliderect(pygame.Rect(self.EnemyPos.x, self.EnemyPos.y, self.size, self.size), pygame.Rect(_miniEnemy.EnemyPos.x, _miniEnemy.EnemyPos.y, _miniEnemy.size, _miniEnemy.size))):
-                    if self.priority == 0 and _miniEnemy.priority == 0:
-                        direction = 0
-                        direction2 = 0
-                        self.mergCounter +=1
-                        #print ("eating ++ ", self.mergCounter)
-                        if self.mergCounter >=5:
-                            self.mergCounter =0
-                            self.size += _miniEnemy.size
-                            self.player.EnemyList.remove(_miniEnemy)
-                            del _miniEnemy
-                        else:
-                            if self.EnemyPos.x <= _miniEnemy.EnemyPos.x:
-                                direction = 1
-                                direction2 = 3
-                                self.CollisionEffect(direction,0)
-                                _miniEnemy.CollisionEffect(direction2,0)
-                            elif self.EnemyPos.y <= _miniEnemy.EnemyPos.y:
-                                direction = 2
-                                direction2 = 4
-                                self.CollisionEffect(direction,0)
-                                _miniEnemy.CollisionEffect(direction2,0)
+                    ############# EATING ##################
+                    self.mergCounter +=1
+                    if self.mergCounter >=10 and _miniEnemy.priority == 0:
+                        self.mergCounter =0
+                        self.size += 10
+                        self.player.EnemyList.remove(_miniEnemy)
+                        del _miniEnemy
                     else:
-                        ##### SOFT COLLISION #########
-                        
+                        ############# COLLIDING ##############
                         if self.EnemyPos.x <= _miniEnemy.EnemyPos.x:
-                            direction = 1
-                            direction2 = 3
-                            self.CollisionEffect(direction,1)
-                            _miniEnemy.CollisionEffect(direction2,1)
+                            self.CollisionEffect(1)
+                            _miniEnemy.CollisionEffect(3)
                         elif self.EnemyPos.y <= _miniEnemy.EnemyPos.y:
-                            direction = 2
-                            direction2 = 4
-                            self.CollisionEffect(direction,1)
-                            _miniEnemy.CollisionEffect(direction2,1)
+                            self.CollisionEffect(2)
+                            _miniEnemy.CollisionEffect(4)
+                    
       
 ## SPAWN 
     def EnemyDraw(self):
