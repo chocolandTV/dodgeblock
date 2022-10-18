@@ -1,3 +1,4 @@
+from turtle import delay
 import pygame
 import settings
 import random
@@ -15,6 +16,7 @@ class Enemy():
         self.mergCounter=0
         self.Move = behaviour
         self.priority = priority
+        self.direction = 0
         self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
         if EnemyPos[0] == 0 and EnemyPos[1] == 0:
             self.NewPosition()
@@ -61,6 +63,10 @@ class Enemy():
             
 #########################   BEHAVIOUR  ENEMY THAT FOLLOW ON THE X AXIS ################################
     def Move_toPlayerX(self):
+        rnd= random.randint(0,10)
+        if rnd >= 9:
+            print ("changed Movement")
+            self.MoveRandomDirection()
         self.target = self.player.playerPos
         #if X reached move Y
         if self.target.x == self.EnemyPos.x:
@@ -79,6 +85,10 @@ class Enemy():
         
 #########################   BEHAVIOUR  ENEMY THAT FOLLOW ON THE Y AXIS ################################
     def Move_toPlayerY(self):
+        rnd= random.randint(0,10)
+        if rnd >= 9:
+            print ("changed Movement")
+            self.MoveRandomDirection()
         self.target = self.player.playerPos
         #if Y reached move X
         if self.target.y == self.EnemyPos.y:
@@ -98,7 +108,10 @@ class Enemy():
     def Move_toTarget(self):
         #if target is reached get new random Target
         if self.target == self.EnemyPos:
-            random.seed(20)
+            rnd= random.randint(0,10)
+            if rnd >= 8:
+                print ("changed Movement")
+                self.MoveRandomDirection()
             print("Enemy - MovetoTarget Behaviour seed",random.random())
             self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
 
@@ -113,7 +126,62 @@ class Enemy():
                 self.EnemyPos.y -= 1
             else:
                 self.EnemyPos.y +=1
+    def ConditionInArea(self, x,y):
+        if x > 0 and x <= self.player.settings.width - self.size and y > 0 and y <= self.player.settings.height - self.size:
+            return True
+        else:
+            return False
+    def MoveRandomDirection(self):
+        rnd = random.randint(0,1000)
+        speedbonus = random.randint(0,100)
+        speed = 1
+        if(speedbonus >99):
+            speed = 10
         
+        if(rnd >7):
+            # continue Moving
+            rnd = self.direction
+        self.direction = rnd    
+        if(rnd == 0):
+            if self.ConditionInArea(self.EnemyPos.x , self.EnemyPos.y -1) == True:
+                
+                self.EnemyPos.y -=speed
+            
+        elif(rnd == 1):
+            if self.ConditionInArea(self.EnemyPos.x+1,self.EnemyPos.y-1) == True:
+                self.EnemyPos.x +=speed
+                self.EnemyPos.y -=speed
+            
+        elif(rnd == 2):
+            if self.ConditionInArea(self.EnemyPos.x+1, self.EnemyPos.y) == True:
+                self.EnemyPos.x +=speed
+           
+        elif(rnd == 3):
+            if self.ConditionInArea(self.EnemyPos.x+1, self.EnemyPos.y +1) == True:
+                self.EnemyPos.y +=speed
+                self.EnemyPos.x +=speed
+            
+        elif(rnd == 4):
+            if self.ConditionInArea(self.EnemyPos.x, self.EnemyPos.y +1) ==True:
+                self.EnemyPos.y +=speed
+            
+        elif(rnd == 5):
+            if self.ConditionInArea(self.EnemyPos.x-1, self.EnemyPos.y +1) ==True:
+                self.EnemyPos.y +=speed
+                self.EnemyPos.x -=speed
+            
+        elif(rnd == 6):
+            if self.ConditionInArea(self.EnemyPos.x-1, self.EnemyPos.y) ==True:
+                self.EnemyPos.x -=speed
+            
+        elif(rnd == 7):
+            if self.ConditionInArea(self.EnemyPos.x-1, self.EnemyPos.y -1) ==True:
+                self.EnemyPos.y -=speed
+                self.EnemyPos.x -=speed
+            
+            
+
+    
  ######################### COLLISION WITH OTHER ENEMYS ################################
     def Collision(self):
         for _miniEnemy in self.player.EnemyList:
@@ -124,17 +192,21 @@ class Enemy():
                     self.mergCounter +=1
                     if self.mergCounter >=10 and _miniEnemy.priority == 0:
                         self.mergCounter =0
-                        self.size += 10
+                        self.size += _miniEnemy.size
                         self.player.EnemyList.remove(_miniEnemy)
                         del _miniEnemy
                     else:
                         ############# COLLIDING ##############
                         if self.EnemyPos.x <= _miniEnemy.EnemyPos.x:
                             self.CollisionEffect(1)
+                            self.direction = 6
                             _miniEnemy.CollisionEffect(3)
+                            _miniEnemy.direction =2
                         elif self.EnemyPos.y <= _miniEnemy.EnemyPos.y:
                             self.CollisionEffect(2)
+                            self.direction = 0
                             _miniEnemy.CollisionEffect(4)
+                            _miniEnemy.direction = 4
                     
       
 ## SPAWN 
@@ -146,7 +218,12 @@ class Enemy():
     def tick(self, _clocktime, ability):
         self.Counter += _clocktime
         self.EnemyDraw()
-        if (self.Counter >= self.delay and ability == False):
+        if (ability == True):
+            RealDelay = self.delay * 1.9
+        else:
+            RealDelay = self.delay
+            ## freeze 90%  ex.  5  -> 4.5 
+        if (self.Counter >= RealDelay):
             self.Counter = 0
             self.Collision()
             self.Move(self)

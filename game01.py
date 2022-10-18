@@ -16,13 +16,34 @@ from pygame.locals import (
     KEYDOWN,
     K_RETURN,
     K_F4,
+    K_BACKSPACE,
     QUIT
 )
+def Credits(gamestate, _Counter):
+    while gamestate == -1:
+        
+        _settings.screen.fill((255, 255, 255))
+        textsurface0 = _settings.big_font.render(("SCRIPT WRITER"), False, (0, 0, 0))
+        textsurface1 = _settings.big_font.render(("Robert Moegenburg"), False, (0, 0, 0))
+        textsurface2 = _settings.big_font.render(("Special Thanks"), False, (0, 0, 0))
+        textsurface3 = _settings.big_font.render(("MisterIXI"), False, (0, 0, 0))
+        _settings.screen.blit(textsurface0, (640, 500))
+        _settings.screen.blit(textsurface1, (640, 550))
+        _settings.screen.blit(textsurface2, (640, 700))
+        _settings.screen.blit(textsurface3, (640, 750))
+        pygame.display.update()
+        _Counter += 1
+        if _Counter >= 5000:
+            gamestate=0
+        
+    return gamestate, _Counter
+
 pygame.init()
 
 _settings = settings.Settings()
 # creating enemylist
 enemylist = []
+difficult = 5000
 ############### Gamestate ###############
 gamestate = 0
 ############### running time ####################
@@ -35,7 +56,9 @@ _highscore = h.HighscoreManager()
 _highscore.PlayerHighscore = 0
 # GameOver State
 game_over = False
-
+_rect_Start = pygame.Rect(444,328,441,99)
+_rect_Credits= pygame.Rect(444,463,441,99)
+_rect_Exit = pygame.Rect(444,600,4441,95)
 
 # 0 splash screen and Hmenu  /// 1 Spawn  /// 2 Game   //// 3 Gameover
 while True:
@@ -62,6 +85,9 @@ while True:
             pygame.display.update()
             ################### input loop ################
             while not done:
+                _settings.screen.blit(img, (0, 0))
+                _settings.screen.blit(textsurface, (500, 250))
+                        
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         done = True
@@ -69,9 +95,27 @@ while True:
                     if event.type == KEYDOWN:
                         if event.key == K_RETURN or event.key == K_F4:
                             done = True
-                
+                        elif event.key == K_BACKSPACE:
+                            input_box1.text = input_box1.text[:-1]
+                    ###### Mouse Click  switch State Start, Credits and Exit
                 input_box1.draw(_settings.screen)
-                
+                if pygame.mouse.get_pressed(3)[0] == True:
+                    x,y = pygame.mouse.get_pos()
+                    if(gamestate == 0 and x >= _rect_Start.left and x <= _rect_Start.right and y <= _rect_Start.bottom and y >= _rect_Start.top):
+                        print (" Start Button")
+                        gamestate = 1
+                        done=True
+                    elif(gamestate == 0 and x >= _rect_Credits.left and x <= _rect_Credits.right and y <= _rect_Credits.bottom and y >= _rect_Credits.top):
+                        print (" Credits Button")
+                        gamestate = -1
+                        _Counter =0
+                        creditReturn=Credits(gamestate, _Counter)
+                        gamestate = creditReturn[0]
+                        _Counter= creditReturn[1]
+                        
+                    elif(gamestate == 0 and x >= _rect_Exit.left and x <= _rect_Exit.right and y <= _rect_Exit.bottom and y >= _rect_Exit.top):
+                        print (" Exit Button")
+                        pygame.quit()    
                 pygame.display.flip()
                 ############ output and define var #################
             if input_box1.text != "":
@@ -129,21 +173,21 @@ while True:
         ################ Create Enemys -( POSITION X,Y - COLOR - SIZE, DELAY , PLAYER, BEHAVIOUR, PRIORITY) ##################
         enemylist.clear()
         enemylist.append(entities.Enemy(
-            (1400, 200), (200, 50, 0), 50, 10, _player, entities.Enemy.Move_toTarget, 1))
+            (1400, 200), (200, 50, 0), 50, 5, _player, entities.Enemy.Move_toTarget, 1))
         enemylist.append(entities.Enemy(
-            (1100, 300), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_toPlayerX, 1))
+            (1100, 300), (255, 0, 0), 50, 5, _player, entities.Enemy.Move_toPlayerX, 1))
         enemylist.append(entities.Enemy(
-            (800, 400), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_toPlayerY, 1))
+            (800, 400), (255, 0, 0), 50, 5, _player, entities.Enemy.Move_toPlayerY, 1))
         enemylist.append(entities.Enemy(
-            (600, 500), (180, 0, 0), 50, 5, _player, entities.Enemy.Move_toTarget, 1))
+            (600, 500), (180, 0, 0), 50, 5, _player, entities.Enemy.MoveRandomDirection, 1))
         enemylist.append(entities.Enemy(
-            (500, 600), (200, 50, 0), 50, 8, _player, entities.Enemy.Move_toTarget, 1))
+            (500, 600), (200, 50, 0), 50, 6, _player, entities.Enemy.MoveRandomDirection, 1))
         enemylist.append(entities.Enemy(
-            (400, 700), (180, 0, 0), 50, 5, _player, entities.Enemy.Move_toTarget, 1))
+            (400, 700), (180, 0, 0), 50, 6, _player, entities.Enemy.Move_toTarget, 1))
         enemylist.append(entities.Enemy(
-            (300, 800), (255, 0, 0), 50, 10, _player, entities.Enemy.Move_toPlayerX, 1))
+            (300, 800), (255, 0, 0), 50, 6, _player, entities.Enemy.Move_toPlayerX, 1))
         enemylist.append(entities.Enemy(
-            (200, 900), (255, 0, 0), 50, 8, _player, entities.Enemy.Move_toPlayerY, 1))
+            (200, 900), (255, 0, 0), 50, 6, _player, entities.Enemy.Move_toPlayerY, 1))
         gamestate = 2
     ############################ Game Running ############################## 
     if gamestate == 2:
@@ -157,16 +201,19 @@ while True:
         totaltime += clock.get_rawtime()
         ##################### Spawn Enemy after  ##########
         # print(currenttime)
-        if currenttime >= 5000:
-            # print(currenttime)
+        if currenttime >= difficult:
+            difficult -=100
+            if difficult <=0:
+                difficult = 100
             enemylist.append(entities.Enemy((0, 0), (random.randint(0, 255), random.randint(
-                0, 255), 0), random.randint(25, 100), random.randint(5, 20), _player, entities.Enemy.Move_toTarget, 0))
+                0, 255), 0), random.randint(25, 100), random.randint(5, 10), _player, entities.Enemy.Move_toTarget, 0))
             currenttime = 0
             random.seed(23)
             print("Enemy - Spawned by seed ",random.random())
         ##################### CHECK COLLISION #####################
         for obj in enemylist:
             if (pygame.Rect.colliderect(pygame.Rect(_player.playerPos.x, _player.playerPos.y, _player.size, _player.size), pygame.Rect(obj.EnemyPos.x, obj.EnemyPos.y, obj.size, obj.size))):
+                
                 obj.tick(clock.get_time(),_player.Ability)
                 gamestate = 3
                 print(" Game Over")
@@ -214,3 +261,4 @@ while True:
         textsurface = _settings.tall_font.render(" Paused ", False, (255, 255, 255))
         _settings.screen.blit(textsurface, (_settings.width/2-100, _settings.height/2-40))
         pygame.display.update()
+    

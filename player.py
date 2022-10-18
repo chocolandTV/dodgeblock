@@ -31,9 +31,9 @@ class Player():
         self.EnemyList = enemylist
         self.SpawnRadius = spawnRadius
         self.Ability = False
-        self.Ability_activationTime = 500
+        self.Ability_activationTime = 600
         self.Ability_counter = 0
-        self.Ability_costs = 0.75  # 25%
+        self.Ability_costs = 0.90  # 10%
         self.highscore = highscore
         self.abilitytext = ""
 
@@ -84,7 +84,7 @@ class Player():
                 self.Ability_counter += 1
                 if self.Ability_counter >= self.Ability_activationTime:
                     self.Ability = False
-            elif self.Ability_counter <= 5000 and self.Ability_counter > 0:  #### 5000 cooldown
+            elif self.Ability_counter <= 1000 and self.Ability_counter > 0:  #### 1000 cooldown
                 self.Ability_counter += 1
             else:
                 self.Ability_counter = -1
@@ -99,9 +99,10 @@ class Player():
                                                    self.playerPos.y, self.size, self.size))
     def ability_string(self):
         if self.Ability:
-            self.abilitytext = " FREEZE ON"
+            self.abilitytext = " FREEZE ACTIVATED"
         elif not self.Ability and self.Ability_counter >=1:
-            self.abilitytext = " FREEZE OFF AND COOLDOWN"
+            self.abilitytext = "COOLDOWN: {0}".format((1000 - self.Ability_counter)/100)
+            
         else:
-            self.abilitytext = " Freeze Ready-  press SPACE for 20% Highscore"
+            self.abilitytext = " Freeze Ready -  press SPACE  - Costs: 10% Highscore"
         return self.abilitytext
