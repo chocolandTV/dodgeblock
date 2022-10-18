@@ -17,7 +17,7 @@ class Enemy():
         self.Move = behaviour
         self.priority = priority
         self.direction = 0
-        self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
+        self.target = pygame.Vector2(random.randint(0, self.player.settings.width - self.size),random.randint(0, self.player.settings.height - self.size))
         if EnemyPos[0] == 0 and EnemyPos[1] == 0:
             self.NewPosition()
         else:
@@ -110,10 +110,10 @@ class Enemy():
         if self.target == self.EnemyPos:
             rnd= random.randint(0,10)
             if rnd >= 8:
-                print ("changed Movement")
+                
                 self.MoveRandomDirection()
-            print("Enemy - MovetoTarget Behaviour seed",random.random())
-            self.target = pygame.Vector2(random.randint(0, self.player.settings.width),random.randint(0, self.player.settings.height))
+            
+            self.target = pygame.Vector2(random.randint(0, self.player.settings.width- self.size),random.randint(0, self.player.settings.height - self.size))
 
         if self.target.x != self.EnemyPos.x:
             if self.target.x < self.EnemyPos.x:
@@ -131,12 +131,14 @@ class Enemy():
             return True
         else:
             return False
+
     def MoveRandomDirection(self):
         rnd = random.randint(0,1000)
         speedbonus = random.randint(0,100)
         speed = 1
         if(speedbonus >99):
             speed = 10
+            print ("EnemySuperSpeed")
         
         if(rnd >7):
             # continue Moving
@@ -146,38 +148,58 @@ class Enemy():
             if self.ConditionInArea(self.EnemyPos.x , self.EnemyPos.y -1) == True:
                 
                 self.EnemyPos.y -=speed
+            else:
+                self.EnemyPos.y +=speed
             
         elif(rnd == 1):
             if self.ConditionInArea(self.EnemyPos.x+1,self.EnemyPos.y-1) == True:
                 self.EnemyPos.x +=speed
                 self.EnemyPos.y -=speed
+            else:
+                self.EnemyPos.x -=speed
+                self.EnemyPos.y +=speed
             
         elif(rnd == 2):
             if self.ConditionInArea(self.EnemyPos.x+1, self.EnemyPos.y) == True:
                 self.EnemyPos.x +=speed
+            else:
+                self.EnemyPos.x -=speed
            
         elif(rnd == 3):
             if self.ConditionInArea(self.EnemyPos.x+1, self.EnemyPos.y +1) == True:
                 self.EnemyPos.y +=speed
                 self.EnemyPos.x +=speed
+            else:
+                self.EnemyPos.y -=speed
+                self.EnemyPos.x -=speed
             
         elif(rnd == 4):
             if self.ConditionInArea(self.EnemyPos.x, self.EnemyPos.y +1) ==True:
                 self.EnemyPos.y +=speed
+            else:
+                self.EnemyPos.y -=speed
             
         elif(rnd == 5):
             if self.ConditionInArea(self.EnemyPos.x-1, self.EnemyPos.y +1) ==True:
                 self.EnemyPos.y +=speed
                 self.EnemyPos.x -=speed
+            else:
+                self.EnemyPos.y -=speed
+                self.EnemyPos.x +=speed
             
         elif(rnd == 6):
             if self.ConditionInArea(self.EnemyPos.x-1, self.EnemyPos.y) ==True:
                 self.EnemyPos.x -=speed
+            else:
+                self.EnemyPos.x +=speed
             
         elif(rnd == 7):
             if self.ConditionInArea(self.EnemyPos.x-1, self.EnemyPos.y -1) ==True:
                 self.EnemyPos.y -=speed
                 self.EnemyPos.x -=speed
+            else:
+                self.EnemyPos.y +=speed
+                self.EnemyPos.x +=speed
             
             
 
@@ -219,10 +241,10 @@ class Enemy():
         self.Counter += _clocktime
         self.EnemyDraw()
         if (ability == True):
-            RealDelay = self.delay * 1.9
+            RealDelay = self.delay * 3
         else:
             RealDelay = self.delay
-            ## freeze 90%  ex.  5  -> 4.5 
+            ## freeze 199%  ex.  5  -> 14.5 
         if (self.Counter >= RealDelay):
             self.Counter = 0
             self.Collision()

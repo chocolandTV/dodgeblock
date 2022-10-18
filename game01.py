@@ -80,13 +80,13 @@ while True:
             ################# Display Input Box  ####################
             textsurface = _settings.small_font.render(("Playername:     (type in and press Return)"), False, (255, 0, 0))
             _settings.screen.blit(textsurface, (500, 250))
-            input_box1 = inputbox.InputBox(520,280, 300, 40)
+            input_box1 = inputbox.InputBox(520,230, 300, 40)
             done = False
             pygame.display.update()
             ################### input loop ################
             while not done:
                 _settings.screen.blit(img, (0, 0))
-                _settings.screen.blit(textsurface, (500, 250))
+                _settings.screen.blit(textsurface, (500, 200))
                         
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -168,7 +168,7 @@ while True:
         currenttime = 0
         lasttime = 0
         ################# Create Player ################
-        _player = player.Player((100, 100), (0, 0, 250),
+        _player = player.Player((100, 100), (0, 0, 200),
                                 32, 2, _settings, enemylist, 250,_highscore)
         ################ Create Enemys -( POSITION X,Y - COLOR - SIZE, DELAY , PLAYER, BEHAVIOUR, PRIORITY) ##################
         enemylist.clear()
