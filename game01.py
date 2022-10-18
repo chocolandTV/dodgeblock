@@ -44,6 +44,7 @@ _settings = settings.Settings()
 # creating enemylist
 enemylist = []
 difficult = 5000
+difficultTotal = 5000
 ############### Gamestate ###############
 gamestate = 0
 ############### running time ####################
@@ -167,6 +168,7 @@ while True:
         _highscore.PlayerHighscore = 0
         currenttime = 0
         lasttime = 0
+        
         ################# Create Player ################
         _player = player.Player((100, 100), (0, 0, 200),
                                 32, 2, _settings, enemylist, 250,_highscore)
@@ -217,7 +219,7 @@ while True:
                 obj.tick(clock.get_time(),_player.Ability)
                 gamestate = 3
                 print(" Game Over")
-                
+                difficult = difficultTotal
                 ####### Save only under 5 pause ######
                 if _highscore.pausedUsed<=5:
                     print ("highscore saved")

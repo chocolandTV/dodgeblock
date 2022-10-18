@@ -214,7 +214,7 @@ class Enemy():
                     self.mergCounter +=1
                     if self.mergCounter >=10 and _miniEnemy.priority == 0:
                         self.mergCounter =0
-                        self.size += _miniEnemy.size
+                        self.size += 25
                         self.player.EnemyList.remove(_miniEnemy)
                         del _miniEnemy
                     else:

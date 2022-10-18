@@ -11,7 +11,7 @@ class Settings():
         self.small_font = pygame.font.SysFont('Arial Black', 18)
         self.big_font = pygame.font.SysFont('Arial Black', 50)
         self.tall_font = pygame.font.SysFont('Arial Black', 70)
-        self.Gameversion = "0.91"
+        self.Gameversion = "0.92"
         self.PlayerName = "anonymous"
         self.highscoreHeight= 160
         
